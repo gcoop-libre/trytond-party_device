@@ -10,5 +10,7 @@
             <field name="end_date"/>
             <label name="delegacion"/>
             <field name="delegacion"/>
+            <label name="activo"/>
+            <field name="activo"/>
     </xpath>
 </data>
