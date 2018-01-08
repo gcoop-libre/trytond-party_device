@@ -32,7 +32,7 @@ class Party:
         if dates and name == 'start_date':
             return min(dates)
         elif dates and name == 'end_date':
-                return max(dates)
+            return max(dates)
         else:
             return None
 
