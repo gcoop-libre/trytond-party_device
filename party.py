@@ -18,7 +18,7 @@ class Party:
     end_date = fields.Function(fields.Date('End date'), 'get_date')
     delegacion = fields.Function(fields.Many2One('contract.device',
             'Delegacion'), 'get_delegacion')
-    activo = fields.Function(fields.Boolean('Activo'), 'get_activo')
+    partner_active = fields.Function(fields.Boolean('Partner active'), 'get_partner_active')
 
     def get_date(self, name):
         Contract = Pool().get('contract')
@@ -43,13 +43,13 @@ class Party:
             return contract.contract_device.id
         return None
 
-    def get_activo(self, name):
+    def get_partner_active(self, name):
         pool = Pool()
         Date = pool.get('ir.date')
         Contract = Pool().get('contract')
         contracts = Contract.search([('party', '=', self),
                                      ('state', '=', 'confirmed'),])
-        activo = False
+        partner_active = False
         for contract in contracts:
             if (contract.start_date <= Date.today() and
                 (contract.end_date is None or contract.end_date >= Date.today())):
@@ -59,7 +59,7 @@ class Party:
                 invoice_lines = InvoiceLine.search([('party', '=', self),
                                                     ('invoice.state', '=', 'posted'),
                                                     ('origin', 'like', 'contract.consumption%' )])
-                activo = True
+                partner_active = True
                 unpaid_months = 0
                 for invoice_line in invoice_lines:
                     consumption = invoice_line.origin
@@ -68,8 +68,8 @@ class Party:
                     diff_period_months = diff_period.days / float(30)
                     # Sum unpaid months to counter
                     unpaid_months += math.ceil(diff_period_months)
-                # Set active to false if there is more than 3 months unpaid
+                # Set partner_active to false if there is more than 3 months unpaid
                 if unpaid_months >= 3:
-                    activo = False
+                    partner_active = False
 
-        return activo
+        return partner_active

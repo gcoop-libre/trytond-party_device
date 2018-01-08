@@ -10,7 +10,7 @@
             <field name="end_date"/>
             <label name="delegacion"/>
             <field name="delegacion"/>
-            <label name="activo"/>
-            <field name="activo"/>
+            <label name="partner_active"/>
+            <field name="partner_active"/>
     </xpath>
 </data>
