@@ -45,22 +45,31 @@ class Party:
 
     def get_activo(self, name):
         pool = Pool()
-        InvoiceLine = pool.get('account.invoice.line')
-        # Search for consumption lines in posted invoices
-        invoice_lines = InvoiceLine.search([('party', '=', self),
-                                            ('invoice.state', '=', 'posted'),
-                                            ('origin', 'like', 'contract.consumption%' )])
-        activo = True
-        unpaid_months = 0
-        for invoice_line in invoice_lines:
-            consumption = invoice_line.origin
-            diff_period = consumption.end_period_date - consumption.init_period_date
-            # Calculate consumption period months unpaid
-            diff_period_months = diff_period.days / float(30)
-            # Sum unpaid months to counter
-            unpaid_months += math.ceil(diff_period_months)
-        # Set active to false if there is more than 3 months unpaid
-        if unpaid_months >= 3:
-            activo = False
+        Date = pool.get('ir.date')
+        Contract = Pool().get('contract')
+        contracts = Contract.search([('party', '=', self),
+                                     ('state', '=', 'confirmed'),])
+        activo = False
+        for contract in contracts:
+            if (contract.start_date <= Date.today() and
+                (contract.end_date is None or contract.end_date >= Date.today())):
+
+                InvoiceLine = pool.get('account.invoice.line')
+                # Search for consumption lines in posted invoices
+                invoice_lines = InvoiceLine.search([('party', '=', self),
+                                                    ('invoice.state', '=', 'posted'),
+                                                    ('origin', 'like', 'contract.consumption%' )])
+                activo = True
+                unpaid_months = 0
+                for invoice_line in invoice_lines:
+                    consumption = invoice_line.origin
+                    diff_period = consumption.end_period_date - consumption.init_period_date
+                    # Calculate consumption period months unpaid
+                    diff_period_months = diff_period.days / float(30)
+                    # Sum unpaid months to counter
+                    unpaid_months += math.ceil(diff_period_months)
+                # Set active to false if there is more than 3 months unpaid
+                if unpaid_months >= 3:
+                    activo = False
 
         return activo
